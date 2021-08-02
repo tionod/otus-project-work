@@ -16,6 +16,7 @@
         <reportportal.log4j.version>5.0.3</reportportal.log4j.version>
         <helenium.version>3.1.2</helenium.version>
         <junit.version>5.7.1</junit.version>
+        <log4j.version>2.14.1</log4j.version>
     </properties>
 
     <dependencies>
@@ -53,6 +54,21 @@
             <groupId>com.epam.reportportal</groupId>
             <artifactId>logger-java-log4j</artifactId>
             <version>${reportportal.log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
     </dependencies>
 </project>
