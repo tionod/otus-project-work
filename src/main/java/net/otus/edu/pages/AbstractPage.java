@@ -8,6 +8,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.List;
+
 public abstract class AbstractPage {
     private static final Logger LOGGER = LogManager.getLogger(AbstractPage.class);
     protected WebDriver driver;
@@ -20,6 +22,10 @@ public abstract class AbstractPage {
 
     protected WebElement getWebElement(By locator) {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    protected List<WebElement> getWebElements(By locator) {
+        return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
     }
 
     protected void waitAndClick(By locator) {

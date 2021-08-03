@@ -8,7 +8,7 @@ import static net.otus.edu.utils.EpamConstants.BASE_URL;
 public class CalendarPage extends AbstractPage {
     private static final String URL = BASE_URL + "calendar";
 
-    protected CalendarPage(WebDriver driver) {
+    public CalendarPage(WebDriver driver) {
         super(driver);
     }
 

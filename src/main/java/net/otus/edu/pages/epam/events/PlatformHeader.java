@@ -5,11 +5,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 public class PlatformHeader extends AbstractPage {
-    private static final String NAV_LINK = "//a[@class='nav-link']";
-    private final By eventLink = By.xpath(NAV_LINK + "[.='Events']");
-    private final By calendarLink = By.xpath(NAV_LINK + "[.='Calendar']");
-    private final By videoLink = By.xpath(NAV_LINK + "[.='Video']");
-
+    private static final String NAV_LINK_PATTERN = "//li[contains(@class, 'nav-item %s')]/a[@class='nav-link']";
+    private final By eventLink = By.xpath(String.format(NAV_LINK_PATTERN, "events"));
+    private final By calendarLink = By.xpath(String.format(NAV_LINK_PATTERN, "calendar"));
+    private final By videoLink = By.xpath(String.format(NAV_LINK_PATTERN, "video"));
 
     protected PlatformHeader(WebDriver driver) {
         super(driver);

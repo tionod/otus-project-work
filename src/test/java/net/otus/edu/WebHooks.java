@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.openqa.selenium.WebDriver;
 
 public class WebHooks {
-    private static final Logger LOG = LogManager.getLogger(WebHooks.class);
+    private static final Logger LOGGER = LogManager.getLogger(WebHooks.class);
     private static WebDriver driver;
 
     public static WebDriver getDriver() {
@@ -17,13 +17,13 @@ public class WebHooks {
 
     @BeforeAll
     public static void setUp() {
-        LOG.info("Инициализация драйвера и создание сессии");
-        driver = WebDriverInit.initSelfHealingDriver();
+        LOGGER.info("Инициализация драйвера и создание сессии");
+        driver = WebDriverInit.initDriver();
     }
 
     @AfterEach
     public void tearDown() {
-        LOG.info("Завершение сессии драйвера");
+        LOGGER.info("Завершение сессии драйвера");
         if (driver != null) {
             driver.quit();
         }
