@@ -1,4 +1,4 @@
-package net.otus.edu.epam;
+package net.otus.edu;
 
 import net.otus.edu.webdriver.WebDriverInit;
 import org.apache.logging.log4j.LogManager;
