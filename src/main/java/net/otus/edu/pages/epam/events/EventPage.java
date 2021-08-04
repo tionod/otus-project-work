@@ -1,5 +1,6 @@
 package net.otus.edu.pages.epam.events;
 
+import com.epam.healenium.annotation.DisableHealing;
 import net.otus.edu.pages.AbstractPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -25,6 +26,7 @@ public class EventPage extends AbstractPage {
         return this;
     }
 
+    @DisableHealing
     public EventPage clickTabByName(String tabName) {
         getWebElement(By.xpath(String.format(TAB_BY_NAME_PATTERN, tabName))).click();
         return this;
@@ -34,6 +36,7 @@ public class EventPage extends AbstractPage {
         return Integer.parseInt(getWebElement(ACTIVE_DESKTOP_EVENTS_TAB_COUNTER).getText());
     }
 
+    @DisableHealing
     public List<WebElement> getEventCards() {
         return getWebElements(EVENT_CARD);
     }
