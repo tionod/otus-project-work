@@ -1,7 +1,7 @@
 package net.otus.edu.webdriver;
 
 import com.epam.healenium.SelfHealingDriver;
-import net.otus.edu.enums.Browsers;
+import net.otus.edu.enums.Browser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -35,10 +35,10 @@ public class WebDriverService {
     protected static WebDriver initDriver() {
         String browserName = System.getProperty("browser");
         WebDriver driver;
-        if (browserName != null && Browsers.containValue(browserName)) {
-            driver = WebDriverFactory.create(Browsers.valueOf(browserName.toUpperCase(Locale.ROOT)));
+        if (browserName != null && Browser.containValue(browserName)) {
+            driver = WebDriverFactory.create(Browser.valueOf(browserName.toUpperCase(Locale.ROOT)));
         } else {
-            driver = WebDriverFactory.create(Browsers.CHROME);
+            driver = WebDriverFactory.create();
         }
         if (driver != null) {
             driver.manage().timeouts().pageLoadTimeout(15, TimeUnit.SECONDS);

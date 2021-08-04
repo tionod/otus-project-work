@@ -1,6 +1,6 @@
 package net.otus.edu.epam;
 
-import net.otus.edu.pages.epam.events.EventPage;
+import net.otus.edu.web.page.epam.events.EventPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -25,27 +25,37 @@ class EventApplicationTests {
 
     @Test
     void viewUpcomingEvents() {
-        EventPage eventPage = new EventPage(getDriver()).open();
-        LOGGER.info("Переход на страницу: {}", eventPage.getTitle());
+        // Step 1 - Пользователь переходит на вкладку events
+        EventPage eventPage = openEventPage();
+        // Step 2 - Пользователь нажимает на Upcoming Events
         String tabName = "Upcoming events";
-        Integer currentCounterValue = eventPage.clickTabByName(tabName).getTabCounter();
-        LOGGER.info("Текущий показатель счетчика вкладки {}: {}", tabName, currentCounterValue);
+//        String tabName = "Past Events";
+        eventPage.clickTabByName(tabName);
+        // Step 3 - На странице отображаются карточки предстоящих мероприятий. Количество карточек равно счетчику на кнопке Upcoming Events.
         Integer eventCardsCount = eventPage.getEventCards().size();
         LOGGER.info("Текущие кол-во карточек с событиями: {}", eventCardsCount);
+        Integer currentCounterValue = eventPage.getTabCounter();
+        LOGGER.info("Текущий показатель счетчика вкладки {}: {}", tabName, currentCounterValue);
         Assertions.assertEquals(eventCardsCount, currentCounterValue,
-                "текущее значение счетчика не соответствует реальному кол-ву событий");
+                "Текущее значение счетчика не соответствует реальному кол-ву событий");
     }
 
     @Test
-    void viewUpcomingEvents2() {
+    void viewEventCards() {
+        // Step 1 - Пользователь переходит на вкладку events
+        EventPage eventPage = openEventPage();
+        // Step 2 - Пользователь нажимает на Upcoming Events
+        String tabName = "Upcoming events";
+        eventPage.clickTabByName(tabName);
+        Assertions.assertAll(
+                () -> Assertions.assertNotNull(eventPage.getEventCards()),
+                () -> Assertions.assertTrue(true)
+        );
+    }
+
+    private EventPage openEventPage() {
         EventPage eventPage = new EventPage(getDriver()).open();
         LOGGER.info("Переход на страницу: {}", eventPage.getTitle());
-        String tabName = "Upcoming events";
-        Integer currentCounterValue = eventPage.clickTabByName(tabName).getTabCounter();
-        LOGGER.info("Текущий показатель счетчика вкладки {}: {}", tabName, currentCounterValue);
-        Integer eventCardsCount = eventPage.getEventCards().size();
-        LOGGER.info("Текущие кол-во карточек с событиями: {}", eventCardsCount);
-        Assertions.assertEquals(eventCardsCount, currentCounterValue,
-                "текущее значение счетчика не соответствует реальному кол-ву событий");
+        return eventPage;
     }
 }

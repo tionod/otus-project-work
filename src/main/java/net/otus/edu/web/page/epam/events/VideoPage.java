@@ -1,6 +1,6 @@
-package net.otus.edu.pages.epam.events;
+package net.otus.edu.web.page.epam.events;
 
-import net.otus.edu.pages.AbstractPage;
+import net.otus.edu.web.page.AbstractPage;
 import org.openqa.selenium.WebDriver;
 
 import static net.otus.edu.utils.EpamConstants.BASE_URL;

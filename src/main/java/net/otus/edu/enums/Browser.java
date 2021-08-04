@@ -1,6 +1,6 @@
 package net.otus.edu.enums;
 
-public enum Browsers {
+public enum Browser {
     CHROME ("chrome"),
     FIREFOX ("firefox"),
     OPERA ("opera");
@@ -11,13 +11,13 @@ public enum Browsers {
         return value;
     }
 
-    Browsers(String value) {
+    Browser(String value) {
         this.value = value;
     }
 
     public static boolean containValue(String value) {
 
-        for (Browsers browserType : Browsers.values()) {
+        for (Browser browserType : Browser.values()) {
             if (browserType.getValue().equalsIgnoreCase(value)) {
                 return true;
             }

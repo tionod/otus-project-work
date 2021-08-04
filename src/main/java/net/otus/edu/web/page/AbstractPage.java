@@ -1,5 +1,6 @@
-package net.otus.edu.pages;
+package net.otus.edu.web.page;
 
+import net.otus.edu.utils.JSExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -14,10 +15,12 @@ public abstract class AbstractPage {
     private static final Logger LOGGER = LogManager.getLogger(AbstractPage.class);
     protected WebDriver driver;
     protected WebDriverWait wait;
+    protected JSExecutor js;
 
     protected AbstractPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, 10L);
+        this.js = new JSExecutor(driver);
     }
 
     protected WebElement getWebElement(By locator) {
@@ -30,6 +33,10 @@ public abstract class AbstractPage {
 
     protected void waitAndClick(By locator) {
         wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+    }
+
+    protected void waitDisappearance(By locator) {
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
     }
 
     public String getTitle() {

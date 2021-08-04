@@ -1,7 +1,8 @@
 package net.otus.edu.webdriver;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import net.otus.edu.enums.Browsers;
+import net.otus.edu.config.TestConfigFactory;
+import net.otus.edu.enums.Browser;
 import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -12,11 +13,17 @@ import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.opera.OperaOptions;
 
 public class WebDriverFactory {
+    private static final TestConfigFactory CONFIG_FACTORY = TestConfigFactory.getInstance();
+
     private WebDriverFactory() {
         throw new IllegalStateException("Utility class");
     }
 
-    public static WebDriver create(Browsers browser){
+    public static WebDriver create() {
+        return create(CONFIG_FACTORY.getWebConfig().getBrowser());
+    }
+
+    public static WebDriver create(Browser browser) {
         switch (browser) {
             case CHROME:
                 WebDriverManager.chromedriver().setup();
@@ -32,7 +39,7 @@ public class WebDriverFactory {
         }
     }
 
-    public static WebDriver create(Browsers type, MutableCapabilities options) {
+    public static WebDriver create(Browser type, MutableCapabilities options) {
         switch (type) {
             case CHROME:
                 WebDriverManager.chromedriver().setup();
