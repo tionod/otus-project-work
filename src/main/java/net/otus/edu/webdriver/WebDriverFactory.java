@@ -16,7 +16,7 @@ public class WebDriverFactory {
     }
 
     public static WebDriver create() {
-        return create(CONFIG_FACTORY.getWebConfig().getBrowser());
+        return create(Browser.getByValue(CONFIG_FACTORY.getWebConfig().getBrowserName()));
     }
 
     public static WebDriver create(Browser browser) {

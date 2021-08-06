@@ -5,7 +5,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class WebDriverService {
@@ -34,8 +33,8 @@ public class WebDriverService {
     protected static WebDriver initDriver() {
         String browserName = System.getProperty("browser");
         WebDriver driver;
-        if (browserName != null && Browser.containValue(browserName)) {
-            driver = WebDriverFactory.create(Browser.valueOf(browserName.toUpperCase(Locale.ROOT)));
+        if (browserName != null) {
+            driver = WebDriverFactory.create(Browser.getByValue(browserName));
         } else {
             driver = WebDriverFactory.create();
         }

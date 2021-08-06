@@ -31,12 +31,12 @@ public abstract class AbstractPage {
         return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
     }
 
-    protected void waitAndClick(By locator) {
-        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
-    }
-
     protected void waitDisappearance(By locator) {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    }
+
+    protected boolean isVisible(By locator) {
+        return driver.findElement(locator).isDisplayed();
     }
 
     public String getTitle() {
