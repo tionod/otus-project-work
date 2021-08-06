@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration packages="com.epam.ta.reportportal.log4j.appender" status="WARN">
+<Configuration monitorInterval="30" status="WARN">
+    <Properties>
+        <Property name="pattern_layout">%d [%t] %level %logger - %msg%n</Property>
+    </Properties>
     <Appenders>
-        <Console name="ConsoleAppender" target="SYSTEM_OUT">
-            <PatternLayout
-                    pattern="%d [%t] %-5level %logger{36} - %msg%n%throwable"/>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${pattern_layout}"/>
         </Console>
-        <ReportPortalLog4j2Appender name="ReportPortalAppender">
-            <PatternLayout
-                    pattern="%d [%t] %-5level %logger{36} - %msg%n%throwable"/>
-        </ReportPortalLog4j2Appender>
+        <File name="FileAppender" fileName="target/logs/${date:yyyy-MM-dd-HH:mm:ss}.log">
+            <PatternLayout pattern="${pattern_layout}"/>
+            <ThresholdFilter>
+                <level>INFO</level>
+                <onMatch>ACCEPT</onMatch>
+                <onMismatch>DENY</onMismatch>
+            </ThresholdFilter>
+        </File>
     </Appenders>
     <Loggers>
         <Root level="INFO">
-            <AppenderRef ref="ConsoleAppender"/>
-            <AppenderRef ref="ReportPortalAppender"/>
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileAppender"/>
         </Root>
     </Loggers>
 </Configuration>

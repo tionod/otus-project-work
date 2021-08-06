@@ -1,6 +1,5 @@
 package net.otus.edu.webdriver;
 
-import com.epam.healenium.SelfHealingDriver;
 import net.otus.edu.enums.Browser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,7 +18,7 @@ public class WebDriverService {
 
     public static void setDriver() {
         LOGGER.info("Инициализация драйвера и создание сессии");
-        DRIVER.set(initSelfHealingDriver());
+        DRIVER.set(initDriver());
     }
 
     public static WebDriver getDriver() {
@@ -45,9 +44,5 @@ public class WebDriverService {
             driver.manage().window().maximize();
         }
         return driver;
-    }
-
-    protected static SelfHealingDriver initSelfHealingDriver() {
-        return SelfHealingDriver.create(initDriver());
     }
 }
