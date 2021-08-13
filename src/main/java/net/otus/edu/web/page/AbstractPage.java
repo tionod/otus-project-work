@@ -35,10 +35,6 @@ public abstract class AbstractPage {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
     }
 
-    protected boolean isVisible(By locator) {
-        return driver.findElement(locator).isDisplayed();
-    }
-
     public String getTitle() {
         LOGGER.info("Текущий заголовок: {}", driver.getTitle());
         return driver.getTitle();
