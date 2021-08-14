@@ -59,4 +59,8 @@ public class EventPage extends AbstractPage {
     public EventCardElement getEventCardElement(int number) {
         return new EventCardElement(driver, number);
     }
+
+    public FilterPanel goToFilter() {
+        return new FilterPanel(driver);
+    }
 }

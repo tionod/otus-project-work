@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.Random;
 
+import static net.otus.edu.web.page.epam.events.FilterPanel.Action.SHOW;
 import static net.otus.edu.webdriver.WebDriverService.*;
 
 class EventApplicationTests {
@@ -47,7 +48,7 @@ class EventApplicationTests {
         // Step 1 - Пользователь переходит на вкладку events
         // Step 2 - Пользователь нажимает на Upcoming Events
         // Step 3 - На странице отображаются карточки предстоящих мероприятий.
-        EventPage eventPage = openUpcomingEvents();
+        EventPage eventPage = openEventTab("Upcoming events");
         // Step 4 - В карточке указана информация о мероприятии: • язык • название мероприятия • дата мероприятия • информация о регистрации • список спикеров
         EventCardElement rndEventCardElement = eventPage.getEventCardElement(RND.nextInt(eventPage.getEventCardsCount()) + 1);
         Assertions.assertAll(
@@ -63,7 +64,7 @@ class EventApplicationTests {
     void checkUpcomingEventDate() {
         // Step 1 - Пользователь переходит на вкладку events
         // Step 2 - Пользователь нажимает на Upcoming Events
-        EventPage eventPage = openUpcomingEvents();
+        EventPage eventPage = openEventTab("Upcoming events");
         // Step 3 - Даты проведения мероприятий больше или равны текущей дате (или текущая дата находится в диапазоне дат проведения)
         EventCardElement eventCardElement = eventPage.getEventCardElement(1);
         String eventDate = eventCardElement.getDate();
@@ -71,7 +72,28 @@ class EventApplicationTests {
         LocalDate end = EventDateParser.getLastDateAtString(eventDate);
         LocalDate now = LocalDate.now();
         Assertions.assertTrue(
-                (start.isAfter(now) || start.isEqual(now)) && (end.isAfter(now) || start.isEqual(now)));
+                (start.isAfter(now) || start.isEqual(now)) && (end.isAfter(now) || start.isEqual(now)),
+                "диапазон дат проведения мероприятий находиться в прошлом");
+    }
+
+    @Test
+    void checkPastEventAfterLocationFilter() {
+        // Step 1 - Пользователь переходит на вкладку events
+        // Step 2 - Пользователь нажимает на Past Events
+        EventPage eventPage = openEventTab("Past Events");
+        // Step 3 - Пользователь нажимает на Location в блоке фильтров и выбирает Canada в выпадающем списке
+        eventPage.goToFilter().locationFilter(SHOW).pickLocation("Canada");
+        eventPage.waitCardLoader();
+        // Step 4 - На странице отображаются карточки прошедших мероприятий. Количество карточек равно счетчику на кнопке Past Events. Даты проведенных мероприятий меньше текущей даты.
+        Assertions.assertAll(
+                () -> Assertions.assertTrue(eventPage.isExistEvent(), "на странице отсутствуют события"),
+                () -> Assertions.assertEquals(eventPage.getEventCardsCount(), eventPage.getTabCounter(),
+                        "количество карточек не равно счетчику вкладки"),
+                () -> Assertions.assertTrue(
+                        EventDateParser.getLastDateAtString(eventPage.getEventCardElement(eventPage.getTabCounter()).getDate())
+                                .isBefore(LocalDate.now()),
+                        "финальная дата события больше текущей даты")
+        );
     }
 
     private EventPage openEventPage() {
@@ -81,9 +103,9 @@ class EventApplicationTests {
         return eventPage;
     }
 
-    private EventPage openUpcomingEvents() {
+    private EventPage openEventTab(String tabName) {
         EventPage eventPage = openEventPage();
-        String tabName = "Upcoming events";
+        LOGGER.info("Переход на вкладку: {}", tabName);
         eventPage.clickTabByName(tabName);
         Assertions.assertTrue(eventPage.isExistEvent());
         return eventPage;
