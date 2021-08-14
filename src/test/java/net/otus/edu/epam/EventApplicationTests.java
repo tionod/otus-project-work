@@ -1,5 +1,6 @@
 package net.otus.edu.epam;
 
+import net.otus.edu.utils.EventDateParser;
 import net.otus.edu.web.page.epam.events.EventCardElement;
 import net.otus.edu.web.page.epam.events.EventPage;
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.Random;
 
 import static net.otus.edu.webdriver.WebDriverService.*;
@@ -43,12 +45,9 @@ class EventApplicationTests {
     @Test
     void viewEventCards() {
         // Step 1 - Пользователь переходит на вкладку events
-        EventPage eventPage = openEventPage();
         // Step 2 - Пользователь нажимает на Upcoming Events
-        String tabName = "Upcoming events";
-        eventPage.clickTabByName(tabName);
         // Step 3 - На странице отображаются карточки предстоящих мероприятий.
-        Assertions.assertTrue(eventPage.isExistEvent());
+        EventPage eventPage = openUpcomingEvents();
         // Step 4 - В карточке указана информация о мероприятии: • язык • название мероприятия • дата мероприятия • информация о регистрации • список спикеров
         EventCardElement rndEventCardElement = eventPage.getEventCardElement(RND.nextInt(eventPage.getEventCardsCount()) + 1);
         Assertions.assertAll(
@@ -60,9 +59,33 @@ class EventApplicationTests {
         );
     }
 
+    @Test
+    void checkUpcomingEventDate() {
+        // Step 1 - Пользователь переходит на вкладку events
+        // Step 2 - Пользователь нажимает на Upcoming Events
+        EventPage eventPage = openUpcomingEvents();
+        // Step 3 - Даты проведения мероприятий больше или равны текущей дате (или текущая дата находится в диапазоне дат проведения)
+        EventCardElement eventCardElement = eventPage.getEventCardElement(1);
+        String eventDate = eventCardElement.getDate();
+        LocalDate start = EventDateParser.getFirstDateAtString(eventDate);
+        LocalDate end = EventDateParser.getLastDateAtString(eventDate);
+        LocalDate now = LocalDate.now();
+        Assertions.assertTrue(
+                (start.isAfter(now) || start.isEqual(now)) && (end.isAfter(now) || start.isEqual(now)));
+    }
+
     private EventPage openEventPage() {
         EventPage eventPage = new EventPage(getDriver()).open();
         LOGGER.info("Переход на страницу: {}", eventPage.getTitle());
+        Assertions.assertNotNull(eventPage);
+        return eventPage;
+    }
+
+    private EventPage openUpcomingEvents() {
+        EventPage eventPage = openEventPage();
+        String tabName = "Upcoming events";
+        eventPage.clickTabByName(tabName);
+        Assertions.assertTrue(eventPage.isExistEvent());
         return eventPage;
     }
 }
