@@ -18,6 +18,7 @@
         <log4j.version>2.14.1</log4j.version>
         <typesafe.config.version>1.4.1</typesafe.config.version>
         <lombok.version>1.18.20</lombok.version>
+        <allure.version>2.14.0</allure.version>
     </properties>
 
     <dependencies>
@@ -66,6 +67,11 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -78,6 +84,12 @@
                     <argLine>
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
                     </argLine>
+                    <systemProperties>
+                        <property>
+                            <name>allure.results.directory</name>
+                            <value>${project.build.directory}/allure-results</value>
+                        </property>
+                    </systemProperties>
                     <includes>
                         <include>**/**</include>
                     </includes>
@@ -89,6 +101,11 @@
                         <version>${aspectj.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.10.0</version>
             </plugin>
         </plugins>
     </build>
