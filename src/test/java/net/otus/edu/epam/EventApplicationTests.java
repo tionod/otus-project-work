@@ -3,18 +3,22 @@ package net.otus.edu.epam;
 import net.otus.edu.utils.EventDateParser;
 import net.otus.edu.web.page.epam.events.EventCardElement;
 import net.otus.edu.web.page.epam.events.EventPage;
+import net.otus.edu.web.page.epam.events.FilterPanel;
+import net.otus.edu.web.page.epam.events.VideoPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.Random;
 
+import static net.otus.edu.utils.Constants.GO_TO_PAGE;
 import static net.otus.edu.web.page.epam.events.FilterPanel.Action.SHOW;
 import static net.otus.edu.webdriver.WebDriverService.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class EventApplicationTests {
     private static final Logger LOGGER = LogManager.getLogger(EventApplicationTests.class);
@@ -39,7 +43,7 @@ class EventApplicationTests {
         LOGGER.info("Текущие кол-во карточек с событиями: {}", eventCardsCount);
         Integer currentCounterValue = eventPage.getTabCounter();
         LOGGER.info("Текущий показатель счетчика вкладки 'Upcoming events': {}", currentCounterValue);
-        Assertions.assertEquals(eventCardsCount, currentCounterValue,
+        assertEquals(eventCardsCount, currentCounterValue,
                 "Текущее значение счетчика не соответствует реальному кол-ву событий");
     }
 
@@ -51,12 +55,12 @@ class EventApplicationTests {
         EventPage eventPage = openEventTab("Upcoming events");
         // Step 4 - В карточке указана информация о мероприятии: • язык • название мероприятия • дата мероприятия • информация о регистрации • список спикеров
         EventCardElement rndEventCardElement = eventPage.getEventCardElement(RND.nextInt(eventPage.getEventCardsCount()) + 1);
-        Assertions.assertAll(
-                () -> Assertions.assertTrue(rndEventCardElement.isVisibleLanguage(), "не отображен язык события"),
-                () -> Assertions.assertTrue(rndEventCardElement.isVisibleEventName(), "не отображено имя события"),
-                () -> Assertions.assertTrue(rndEventCardElement.isVisibaleDate(), "не отображена дата проведения события"),
+        assertAll(
+                () -> assertTrue(rndEventCardElement.isVisibleLanguage(), "не отображен язык события"),
+                () -> assertTrue(rndEventCardElement.isVisibleEventName(), "не отображено имя события"),
+                () -> assertTrue(rndEventCardElement.isVisibleDate(), "не отображена дата проведения события"),
                 // Note: На момент написания теста, поле информации о регистрации отсутствовало в карточках события
-                () -> Assertions.assertTrue(rndEventCardElement.isVisibleSpeaker(), "не отображена информация о спикере")
+                () -> assertTrue(rndEventCardElement.isVisibleSpeaker(), "не отображена информация о спикере")
         );
     }
 
@@ -64,6 +68,7 @@ class EventApplicationTests {
     void checkUpcomingEventDate() {
         // Step 1 - Пользователь переходит на вкладку events
         // Step 2 - Пользователь нажимает на Upcoming Events
+        // Step 3 - На странице отображаются карточки предстоящих мероприятий.
         EventPage eventPage = openEventTab("Upcoming events");
         // Step 3 - Даты проведения мероприятий больше или равны текущей дате (или текущая дата находится в диапазоне дат проведения)
         EventCardElement eventCardElement = eventPage.getEventCardElement(1);
@@ -71,7 +76,7 @@ class EventApplicationTests {
         LocalDate start = EventDateParser.getFirstDateAtString(eventDate);
         LocalDate end = EventDateParser.getLastDateAtString(eventDate);
         LocalDate now = LocalDate.now();
-        Assertions.assertTrue(
+        assertTrue(
                 (start.isAfter(now) || start.isEqual(now)) && (end.isAfter(now) || start.isEqual(now)),
                 "диапазон дат проведения мероприятий находиться в прошлом");
     }
@@ -82,32 +87,65 @@ class EventApplicationTests {
         // Step 2 - Пользователь нажимает на Past Events
         EventPage eventPage = openEventTab("Past Events");
         // Step 3 - Пользователь нажимает на Location в блоке фильтров и выбирает Canada в выпадающем списке
-        eventPage.goToFilter().locationFilter(SHOW).pickLocation("Canada");
+        eventPage.goToFilter().locationFilter(SHOW).selectLocation("Canada");
         eventPage.waitCardLoader();
         // Step 4 - На странице отображаются карточки прошедших мероприятий. Количество карточек равно счетчику на кнопке Past Events. Даты проведенных мероприятий меньше текущей даты.
-        Assertions.assertAll(
-                () -> Assertions.assertTrue(eventPage.isExistEvent(), "на странице отсутствуют события"),
-                () -> Assertions.assertEquals(eventPage.getEventCardsCount(), eventPage.getTabCounter(),
+        assertAll(
+                () -> assertTrue(eventPage.existEvents(), "на странице отсутствуют события"),
+                () -> assertEquals(eventPage.getEventCardsCount(), eventPage.getTabCounter(),
                         "количество карточек не равно счетчику вкладки"),
-                () -> Assertions.assertTrue(
+                () -> assertTrue(
                         EventDateParser.getLastDateAtString(eventPage.getEventCardElement(eventPage.getTabCounter()).getDate())
                                 .isBefore(LocalDate.now()),
                         "финальная дата события больше текущей даты")
         );
     }
 
+    @Test
+    void filterReportsByCategory() {
+        // Step 1 - Пользователь переходит на вкладку (Video) Talks Library
+        VideoPage videoPage = openVideoPage();
+        // Step 2 - Пользователь нажимает на More Filters
+        FilterPanel filterPanel = videoPage.goToFilter().moreFilters(SHOW);
+        // Step 3 - Пользователь выбирает: Category – Testing, Location – Belarus, Language – English, На вкладке фильтров
+        filterPanel.categoryFilter(SHOW).selectCategory("Testing");
+        filterPanel.locationFilter(SHOW).selectLocation("Belarus");
+        filterPanel.languageFilter(SHOW).selectLanguage("English");
+        // Step 4 - На странице отображаются карточки соответствующие правилам выбранных фильтров
+        assertTrue(videoPage.existTalkCards());
+    }
+
+    @Test
+    void searchTalkByWord() {
+        // Step 1 - Пользователь переходит на вкладку (Video) Talks Library
+        VideoPage videoPage = openVideoPage();
+        // Step 2 - Пользователь вводит ключевое слово QA в поле поиска
+        videoPage.goToFilter().search("QA");
+        videoPage.waitGlobalLoader();
+        // Step 3 - На странице отображаются доклады, содержащие в названии ключевое слово поиска
+        assertTrue(videoPage.existTalkCards());
+
+    }
+
     private EventPage openEventPage() {
         EventPage eventPage = new EventPage(getDriver()).open();
-        LOGGER.info("Переход на страницу: {}", eventPage.getTitle());
-        Assertions.assertNotNull(eventPage);
+        LOGGER.info(GO_TO_PAGE, eventPage.getTitle());
+        assertNotNull(eventPage);
         return eventPage;
+    }
+
+    private VideoPage openVideoPage() {
+        VideoPage videoPage = new VideoPage(getDriver()).open();
+        LOGGER.info(GO_TO_PAGE, videoPage.getTitle());
+        assertNotNull(videoPage);
+        return videoPage;
     }
 
     private EventPage openEventTab(String tabName) {
         EventPage eventPage = openEventPage();
         LOGGER.info("Переход на вкладку: {}", tabName);
         eventPage.clickTabByName(tabName);
-        Assertions.assertTrue(eventPage.isExistEvent());
+        assertTrue(eventPage.existEvents());
         return eventPage;
     }
 }

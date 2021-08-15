@@ -49,7 +49,7 @@ public class EventCardElement extends AbstractPage {
         return getWebElement(dateLocator).getText();
     }
 
-    public boolean isVisibaleDate() {
+    public boolean isVisibleDate() {
         return !getDate().isEmpty();
     }
 

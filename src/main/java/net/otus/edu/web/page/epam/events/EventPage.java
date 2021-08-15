@@ -4,7 +4,8 @@ import net.otus.edu.web.page.AbstractPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-import static net.otus.edu.utils.EpamConstants.BASE_URL;
+import static net.otus.edu.utils.Constants.BASE_URL;
+import static net.otus.edu.utils.Constants.EVENT_GLOBAL_LOADER_LOCATOR;
 
 public class EventPage extends AbstractPage {
     private static final String URL = BASE_URL + "events";
@@ -12,7 +13,6 @@ public class EventPage extends AbstractPage {
     private static final String TAB_BY_NAME_PATTERN = "//a[contains(@class, 'evnt-tab-link nav-link')]/span[.='%s']";
     private static final By ACTIVE_DESKTOP_EVENTS_TAB_COUNTER = By.xpath(String.format(EVENTS_TAB_PATTERN, "active", "desktop") + "/following-sibling::span[contains(@class, 'evnt-tab-counter evnt-label')]");
     private static final By EVENT_CARD = By.xpath("//div[contains(@class, 'evnt-event-card')]");
-    private static final By EVENT_GLOBAL_LOADER = By.xpath("//*[@class='evnt-global-loader']");
     private static final By EVENT_CARD_LOADER = By.xpath("//*[@class='evnt-cards-loading']");
     private static final By FOOTER_NAVIGATOR_WRAPPER = By.xpath("//div[@class='evnt-footer-navigation-wrapper']");
 
@@ -27,11 +27,11 @@ public class EventPage extends AbstractPage {
 
     public void clickTabByName(String tabName) {
         getWebElement(By.xpath(String.format(TAB_BY_NAME_PATTERN, tabName))).click();
-        waitEventLoader();
+        waitGlobalLoader();
     }
 
-    private void waitEventLoader() {
-        waitDisappearance(EVENT_GLOBAL_LOADER);
+    private void waitGlobalLoader() {
+        waitDisappearance(EVENT_GLOBAL_LOADER_LOCATOR);
     }
 
     public void waitCardLoader() {
@@ -51,8 +51,8 @@ public class EventPage extends AbstractPage {
         return getWebElements(EVENT_CARD).size();
     }
 
-    public boolean isExistEvent() {
-        waitEventLoader();
+    public boolean existEvents() {
+        waitGlobalLoader();
         return driver.findElement(EVENT_CARD).isDisplayed();
     }
 
