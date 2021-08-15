@@ -12,5 +12,11 @@ public class Constants {
     public static final By EVENT_GLOBAL_LOADER_LOCATOR = By.xpath("//*[@class='evnt-global-loader']");
     // LOGGER
     public static final String GO_TO_PAGE = "Переход на страницу: {}";
+    // REMOTE DRIVER
+    public static final String BROWSER_NAME = "browserName";
+    public static final String BROWSER_VERSION = "browserVersion";
+    public static final String ENABLE_VNC = "enableVNC";
+    public static final String ENABLE_VIDEO = "enableVideo";
+    public static final String ENABLE_LOGS = "enableLogs";
 
 }
