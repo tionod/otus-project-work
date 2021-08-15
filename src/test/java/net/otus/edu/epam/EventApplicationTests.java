@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -20,6 +21,7 @@ import static net.otus.edu.webdriver.WebDriverService.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@DisplayName("Тестирование платформы 'events.epam.com'")
 class EventApplicationTests {
     private static final Logger LOGGER = LogManager.getLogger(EventApplicationTests.class);
     private static final Random RND = new Random();
@@ -35,6 +37,7 @@ class EventApplicationTests {
     }
 
     @Test
+    @DisplayName("Просмотр предстоящих мероприятий")
     void viewUpcomingEvents() {
         // Step 1 - Пользователь переходит на вкладку events
         EventPage eventPage = openEventPage();
@@ -48,6 +51,7 @@ class EventApplicationTests {
     }
 
     @Test
+    @DisplayName("Просмотр карточек мероприятий")
     void viewEventCards() {
         // Step 1 - Пользователь переходит на вкладку events
         // Step 2 - Пользователь нажимает на Upcoming Events
@@ -65,6 +69,7 @@ class EventApplicationTests {
     }
 
     @Test
+    @DisplayName("Валидация дат предстоящих мероприятий")
     void checkUpcomingEventDate() {
         // Step 1 - Пользователь переходит на вкладку events
         // Step 2 - Пользователь нажимает на Upcoming Events
@@ -82,6 +87,7 @@ class EventApplicationTests {
     }
 
     @Test
+    @DisplayName("Просмотр прошедших мероприятий в Канаде")
     void checkPastEventAfterLocationFilter() {
         // Step 1 - Пользователь переходит на вкладку events
         // Step 2 - Пользователь нажимает на Past Events
@@ -102,6 +108,7 @@ class EventApplicationTests {
     }
 
     @Test
+    @DisplayName("Фильтрация докладов по категориям")
     void filterReportsByCategory() {
         // Step 1 - Пользователь переходит на вкладку (Video) Talks Library
         VideoPage videoPage = openVideoPage();
@@ -116,6 +123,7 @@ class EventApplicationTests {
     }
 
     @Test
+    @DisplayName("Поиск докладов по ключевому слову 'QA'")
     void searchTalkByWord() {
         // Step 1 - Пользователь переходит на вкладку (Video) Talks Library
         VideoPage videoPage = openVideoPage();
