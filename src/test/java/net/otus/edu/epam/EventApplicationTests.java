@@ -26,7 +26,7 @@ class EventApplicationTests {
 
     @BeforeEach
     public void setUp() {
-        setDriver();
+        setDriver(Run.REMOTE);
     }
 
     @AfterEach

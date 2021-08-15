@@ -23,21 +23,20 @@ public class WebDriverService {
         throw new IllegalStateException("Utility class");
     }
 
-    private static final TestConfigFactory CONFIG_FACTORY = TestConfigFactory.getInstance();
     private static final Logger LOGGER = LogManager.getLogger(WebDriverService.class);
+    private static final Properties PROPS = System.getProperties();
+    private static final WebConfig WEB_CONFIG = TestConfigFactory.getInstance().getWebConfig();
     private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
 
-    public static void setDriver() {
+    public static void setDriver(Run place) {
         LOGGER.info("Инициализация драйвера и создание сессии");
-        String runType = System.getProperty("run");
-        if (runType == null) {
-            DRIVER.set(initLocalDriver());
-        } else {
-            if ("remote".equals(runType)) {
+        switch (place) {
+            case REMOTE:
                 DRIVER.set(initRemoteDriver());
-            } else if ("local".equals(runType)) {
+                break;
+            case LOCAL:
+            default:
                 DRIVER.set(initLocalDriver());
-            }
         }
     }
 
@@ -52,7 +51,7 @@ public class WebDriverService {
     }
 
     protected static WebDriver initLocalDriver() {
-        String browserName = System.getProperty("browser");
+        String browserName = System.getProperty(BROWSER);
         WebDriver driver;
         if (browserName != null) {
             driver = WebDriverFactory.create(Browser.getByValue(browserName));
@@ -68,48 +67,43 @@ public class WebDriverService {
 
     protected static WebDriver initRemoteDriver() {
         WebDriver driver = null;
-        WebConfig config = CONFIG_FACTORY.getWebConfig();
-        Properties prop = System.getProperties();
-        DesiredCapabilities capabilities;
-
-        if (prop.getProperty("run").equals("remote") && prop.getProperty("browser") != null) {
-            capabilities = setCapabilities(
-                    prop.getProperty(BROWSER_NAME),
-                    prop.getProperty(BROWSER_VERSION),
-                    Boolean.valueOf(prop.getProperty(ENABLE_VNC)),
-                    Boolean.valueOf(prop.getProperty(ENABLE_VIDEO)),
-                    Boolean.valueOf(prop.getProperty(ENABLE_LOGS)));
-        } else {
-            capabilities = setCapabilities(config);
-        }
-
+        DesiredCapabilities capabilities = setCapabilities();
         try {
-            driver = new RemoteWebDriver(URI.create(config.getSelenoidUrl()).toURL(), capabilities);
+            driver = new RemoteWebDriver(URI.create(WEB_CONFIG.getSelenoidUrl()).toURL(), capabilities);
             driver.manage().timeouts().pageLoadTimeout(15, TimeUnit.SECONDS);
             driver.manage().window().maximize();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
         return driver;
     }
 
-    private static DesiredCapabilities setCapabilities(WebConfig config) {
-        return setCapabilities(config.getBrowserName(), config.getBrowserVersion(),
-                config.getEnableVNC(), config.getEnableVideo(), config.getEnableLogs());
+    private static DesiredCapabilities setCapabilities() {
+        DesiredCapabilities caps = new DesiredCapabilities();
+        Map<String, Object> selenoidOptions = new HashMap<>();
+
+        String browser = (PROPS.getProperty(BROWSER) != null ? PROPS.getProperty(BROWSER) : WEB_CONFIG.getBrowserName());
+        String version = (PROPS.getProperty(BROWSER_VERSION) != null ? PROPS.getProperty(BROWSER_VERSION) : WEB_CONFIG.getBrowserVersion());
+        Boolean enableVNC = (PROPS.getProperty(ENABLE_VNC) != null ? Boolean.valueOf(PROPS.getProperty(ENABLE_VNC)) : WEB_CONFIG.getEnableVNC());
+        Boolean enableVideoRecord = (PROPS.getProperty(ENABLE_VIDEO) != null ? Boolean.valueOf(PROPS.getProperty(ENABLE_VIDEO)) : WEB_CONFIG.getEnableVideo());
+        Boolean enableLogs = (PROPS.getProperty(ENABLE_LOGS) != null ? Boolean.valueOf(PROPS.getProperty(ENABLE_LOGS)) : WEB_CONFIG.getEnableLogs());
+
+        caps.setCapability(BROWSER_NAME, browser);
+        LOGGER.info(CAPABILITY, BROWSER_NAME, browser);
+
+        caps.setCapability(BROWSER_VERSION, version);
+        LOGGER.info(CAPABILITY, BROWSER_VERSION, version);
+
+        selenoidOptions.put(ENABLE_VNC, enableVNC);
+        selenoidOptions.put(ENABLE_VIDEO, enableVideoRecord);
+        selenoidOptions.put(ENABLE_LOGS, enableLogs);
+        caps.setCapability(SELENOID_OPTIONS, selenoidOptions);
+        LOGGER.info(CAPABILITY, SELENOID_OPTIONS, selenoidOptions);
+
+        return caps;
     }
 
-    private static DesiredCapabilities setCapabilities(String browserName, String browserVersion, Boolean enableVNC, Boolean enableVideo, Boolean enableLogs) {
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability(BROWSER_NAME, browserName);
-        capabilities.setCapability(BROWSER_VERSION, browserVersion);
-
-        Map<String, Object> options = new HashMap<>();
-        options.put(ENABLE_VNC, enableVNC);
-        options.put(ENABLE_VIDEO, enableVideo);
-        options.put(ENABLE_LOGS, enableLogs);
-
-        capabilities.setCapability("selenoid:options", options);
-        return capabilities;
+    public enum Run {
+        LOCAL, REMOTE
     }
 }
