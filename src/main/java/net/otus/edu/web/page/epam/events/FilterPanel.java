@@ -49,7 +49,7 @@ public class FilterPanel extends AbstractPage {
     }
 
     public void selectCategory(String category) {
-        inputValueAndSelect(CATEGORY_FILTER_XPATH, category);
+        selectCheckbox(category);
     }
 
     public FilterPanel languageFilter(Action action) {
@@ -57,8 +57,9 @@ public class FilterPanel extends AbstractPage {
         return this;
     }
 
-    public void selectLanguage(String language) {
+    public FilterPanel selectLanguage(String language) {
         selectCheckbox(language.toUpperCase(Locale.ROOT));
+        return this;
     }
 
     private void selectCheckbox(String name) {

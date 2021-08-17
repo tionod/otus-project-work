@@ -1,6 +1,7 @@
 package net.otus.edu.web.page.epam.events;
 
 import net.otus.edu.web.page.AbstractPage;
+import net.otus.edu.web.page.epam.events.element.EventCard;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -56,8 +57,8 @@ public class EventPage extends AbstractPage {
         return driver.findElement(EVENT_CARD).isDisplayed();
     }
 
-    public EventCardElement getEventCardElement(int number) {
-        return new EventCardElement(driver, number);
+    public EventCard getEventCard(int number) {
+        return new EventCard(driver, number);
     }
 
     public FilterPanel goToFilter() {

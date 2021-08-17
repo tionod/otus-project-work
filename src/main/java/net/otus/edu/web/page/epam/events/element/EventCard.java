@@ -1,6 +1,6 @@
-package net.otus.edu.web.page.epam.events;
+package net.otus.edu.web.page.epam.events.element;
 
-import net.otus.edu.web.page.AbstractPage;
+import net.otus.edu.web.page.AbstractElement;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -8,26 +8,21 @@ import org.openqa.selenium.WebElement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventCardElement extends AbstractPage {
+public class EventCard extends AbstractElement {
     private static final String EVENT_CARD_PATTERN = "(//div[contains(@class, 'evnt-event-card')])[%s]";
     private static final String LANGUAGE_XPATH = "//p[@class='language']/span";
     private static final String EVENT_NAME_XPATH = "//div[@class='evnt-event-name']//span";
     private static final String DATE_XPATH = "//span[@class='date']";
     private static final String SPEAKER_XPATH = "//div[@class='evnt-speaker']";
 
-    protected int number;
-
-    public EventCardElement(WebDriver driver, int number) {
-        super(driver);
-        this.number = number;
+    public EventCard(WebDriver driver, int number) {
+        super(driver, number);
     }
 
-    private String getEventCardXPath() {
-        return String.format(EVENT_CARD_PATTERN, number);
-    }
+    private final String eventCardXPath = getElementXPath(EVENT_CARD_PATTERN);
 
     public String getLanguage() {
-        By languageLocator = By.xpath(getEventCardXPath() + LANGUAGE_XPATH);
+        By languageLocator = By.xpath(eventCardXPath + LANGUAGE_XPATH);
         return getWebElement(languageLocator).getText();
     }
 
@@ -36,7 +31,7 @@ public class EventCardElement extends AbstractPage {
     }
 
     public String getEventName() {
-        By eventNameLocator = By.xpath(getEventCardXPath() + EVENT_NAME_XPATH);
+        By eventNameLocator = By.xpath(eventCardXPath + EVENT_NAME_XPATH);
         return getWebElement(eventNameLocator).getText();
     }
 
@@ -45,7 +40,7 @@ public class EventCardElement extends AbstractPage {
     }
 
     public String getDate() {
-        By dateLocator = By.xpath(getEventCardXPath() + DATE_XPATH);
+        By dateLocator = By.xpath(eventCardXPath + DATE_XPATH);
         return getWebElement(dateLocator).getText();
     }
 
@@ -54,7 +49,7 @@ public class EventCardElement extends AbstractPage {
     }
 
     public String getSpeakers() {
-        By speakerLocator = By.xpath(getEventCardXPath() + SPEAKER_XPATH);
+        By speakerLocator = By.xpath(eventCardXPath + SPEAKER_XPATH);
         List<WebElement> speakers = getWebElements(speakerLocator);
         List<String> speakerList = new ArrayList<>();
         for (WebElement speaker : speakers) {

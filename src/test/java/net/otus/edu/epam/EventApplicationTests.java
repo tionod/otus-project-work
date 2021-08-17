@@ -2,12 +2,13 @@ package net.otus.edu.epam;
 
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
-import io.qameta.allure.model.Status;
 import net.otus.edu.utils.EventDateParser;
 import net.otus.edu.web.page.epam.events.EventPage;
 import net.otus.edu.web.page.epam.events.FilterPanel;
-import net.otus.edu.web.page.epam.events.VideoPage;
+import net.otus.edu.web.page.epam.events.TalkPage;
+import net.otus.edu.web.page.epam.events.TalksLibraryPage;
 import net.otus.edu.web.page.epam.events.element.EventCard;
+import net.otus.edu.web.page.epam.events.element.TalkCard;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Random;
 
 import static net.otus.edu.utils.Constants.GO_TO_PAGE;
+import static net.otus.edu.web.page.epam.events.FilterPanel.Action.HIDE;
 import static net.otus.edu.web.page.epam.events.FilterPanel.Action.SHOW;
 import static net.otus.edu.webdriver.WebDriverService.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,8 +64,8 @@ class EventApplicationTests {
                 () -> assertTrue(rndEventCard.isVisibleDate(), "не отображена дата проведения события"),
                 () -> assertTrue(rndEventCard.isVisibleSpeaker(), "не отображена информация о спикере")
         );
-        Allure.description("Note: На момент написания теста, поле информации о регистрации отсутствовало в карточках события");
         Allure.step("В карточке указана информация о мероприятии: • язык • название мероприятия • дата мероприятия • список спикеров");
+        Allure.description("Note: На момент написания теста, поле информации о регистрации отсутствовало в карточках события");
     }
 
     @Test
@@ -103,30 +105,29 @@ class EventApplicationTests {
     @Test
     @DisplayName("Фильтрация докладов по категориям")
     void filterReportsByCategory() {
-        VideoPage videoPage = openVideoPage();
-        FilterPanel filterPanel = videoPage.goToFilter().moreFilters(SHOW);
-        Allure.step("Пользователь нажимает на More Filters");
-        filterPanel.categoryFilter(SHOW).selectCategory("Testing");
-        filterPanel.locationFilter(SHOW).selectLocation("Belarus");
-        filterPanel.languageFilter(SHOW).selectLanguage("English");
-        Allure.step("Пользователь выбирает: Category – Testing, Location – Belarus, Language – English, На вкладке фильтров");
-        assertTrue(videoPage.existTalkCards());
-        // TODO: Изменить assert добавив проверку по отображаемым значениям
-        Allure.step("На странице отображаются карточки соответствующие правилам выбранных фильтров", Status.SKIPPED);
+        TalksLibraryPage page = openTalksLibraryPage();
+        String category = "Testing";
+        String location = "Belarus";
+        String language = "English";
+        TalksLibraryPage results = searchTalksByParams(page, category, location, language);
+        TalkPage rndTalkPage = results.getTalkCard(RND.nextInt(results.getTalkCardsCount() + 1)).open();
+        assertAll(
+                () -> assertTrue(rndTalkPage.getCategories().contains(category), String.format("в списке категорий отсутствует '%s'", category)),
+                () -> assertTrue(rndTalkPage.getLocation().contains(location), "место проведения события не соответствует выбранному фильтру"),
+                () -> assertTrue(rndTalkPage.getLanguage().equalsIgnoreCase(language), "язык события не соответствует выбранному фильтру")
+        );
+        Allure.step("На странице отображаются карточки соответствующие правилам выбранных фильтров");
     }
 
     @Test
     @DisplayName("Поиск докладов по ключевому слову 'QA'")
     void searchTalkByWord() {
-        VideoPage videoPage = openVideoPage();
-        // Step 2 - Пользователь вводит ключевое слово QA в поле поиска
+        TalksLibraryPage page = openTalksLibraryPage();
         String word = "QA";
-        videoPage.goToFilter().search(word);
-        Allure.step(String.format("Пользователь вводит ключевое слово '%s' в поле поиска", word));
-        videoPage.waitGlobalLoader();
-        assertTrue(videoPage.existTalkCards());
-        Allure.step("На странице отображаются доклады, содержащие в названии ключевое слово поиска", Status.SKIPPED);
-        // TODO: Изменить assert добавив проверку по отображаемым значениям
+        TalksLibraryPage results = searchTalksByName(page, word);
+        TalkCard rndTalkCard = results.getTalkCard(RND.nextInt(results.getTalkCardsCount() + 1));
+        assertTrue(rndTalkCard.getName().contains(word));
+        Allure.step(String.format("На странице отображаются доклады, содержащие в названии ключевое слово поиска '%s'", word));
 
     }
 
@@ -138,15 +139,15 @@ class EventApplicationTests {
         return eventPage;
     }
 
-    private VideoPage openVideoPage() {
-        VideoPage videoPage = new VideoPage(getDriver()).open();
-        LOGGER.info(GO_TO_PAGE, videoPage.getTitle());
-        assertNotNull(videoPage);
+    private TalksLibraryPage openTalksLibraryPage() {
+        TalksLibraryPage talksLibraryPage = new TalksLibraryPage(getDriver()).open();
+        LOGGER.info(GO_TO_PAGE, talksLibraryPage.getTitle());
+        assertNotNull(talksLibraryPage);
         Allure.step("Пользователь открывает страницу 'Video / Talks Library'");
-        return videoPage;
+        return talksLibraryPage;
     }
 
-    @Step("Пользователь переходит на вкладку {tabName}")
+    @Step("Пользователь переходит на вкладку '{tabName}'")
     private EventPage openEventTab(String tabName) {
         EventPage eventPage = openEventPage();
         LOGGER.info("Переход на вкладку: {}", tabName);
@@ -155,5 +156,36 @@ class EventApplicationTests {
         assertTrue(eventPage.existEvents());
         Allure.step("На странице отображаются карточки предстоящих мероприятий.");
         return eventPage;
+    }
+
+    @Step("Пользователь вводит в поиск строку: '{string}'")
+    private TalksLibraryPage searchTalksByName(TalksLibraryPage page, String string) {
+        Integer count = page.getTalkCardsCounter();
+        page.goToFilter().search(string);
+        waitResultsUpdate(page, count);
+        assertTrue(page.existTalkCards());
+        Allure.step(String.format("На странице отображаются доклады, содержащие слова поиска : '%s'", string));
+        return page;
+    }
+
+    @Step("Пользователь выполняет поиск по категории '{category}', локации '{location}' и языку '{language}'")
+    private TalksLibraryPage searchTalksByParams(TalksLibraryPage page, String category, String location, String language) {
+        Integer count = page.getTalkCardsCounter();
+        FilterPanel filterPanel = page.goToFilter().moreFilters(SHOW);
+        Allure.step("Пользователь нажимает на More Filters");
+        filterPanel.categoryFilter(SHOW).selectCategory(category);
+        filterPanel.locationFilter(SHOW).selectLocation(location);
+        filterPanel.languageFilter(SHOW).selectLanguage(language).languageFilter(HIDE);
+        Allure.step("Пользователь выбирает: Category – Testing, Location – Belarus, Language – English, На вкладке фильтров");
+        waitResultsUpdate(page, count);
+        assertTrue(page.existTalkCards());
+        return page;
+    }
+
+    @Step("Ожидается обновление результатов")
+    private void waitResultsUpdate(TalksLibraryPage page, Integer count) {
+        while (count.equals(page.getTalkCardsCounter())) {
+            page.waitGlobalLoader();
+        }
     }
 }

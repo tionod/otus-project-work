@@ -24,8 +24,8 @@ public class PlatformHeader extends AbstractPage {
         return new CalendarPage(driver);
     }
 
-    public VideoPage openVideoPage() {
+    public TalksLibraryPage openVideoPage() {
         getWebElement(videoLink).click();
-        return new VideoPage(driver);
+        return new TalksLibraryPage(driver);
     }
 }
