@@ -1,10 +1,13 @@
 package net.otus.edu.epam;
 
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
+import io.qameta.allure.model.Status;
 import net.otus.edu.utils.EventDateParser;
-import net.otus.edu.web.page.epam.events.EventCardElement;
 import net.otus.edu.web.page.epam.events.EventPage;
 import net.otus.edu.web.page.epam.events.FilterPanel;
 import net.otus.edu.web.page.epam.events.VideoPage;
+import net.otus.edu.web.page.epam.events.element.EventCard;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -19,7 +22,6 @@ import static net.otus.edu.utils.Constants.GO_TO_PAGE;
 import static net.otus.edu.web.page.epam.events.FilterPanel.Action.SHOW;
 import static net.otus.edu.webdriver.WebDriverService.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("Тестирование платформы 'events.epam.com'")
 class EventApplicationTests {
@@ -28,7 +30,7 @@ class EventApplicationTests {
 
     @BeforeEach
     public void setUp() {
-        setDriver(Run.REMOTE);
+        setDriver(Run.LOCAL);
     }
 
     @AfterEach
@@ -39,99 +41,92 @@ class EventApplicationTests {
     @Test
     @DisplayName("Просмотр предстоящих мероприятий")
     void viewUpcomingEvents() {
-        // Step 1 - Пользователь переходит на вкладку events
         EventPage eventPage = openEventPage();
-        // Step 2 - На странице отображаются карточки предстоящих мероприятий. Количество карточек равно счетчику на кнопке Upcoming Events.
         Integer eventCardsCount = eventPage.getEventCardsCount();
         LOGGER.info("Текущие кол-во карточек с событиями: {}", eventCardsCount);
         Integer currentCounterValue = eventPage.getTabCounter();
         LOGGER.info("Текущий показатель счетчика вкладки 'Upcoming events': {}", currentCounterValue);
         assertEquals(eventCardsCount, currentCounterValue,
                 "Текущее значение счетчика не соответствует реальному кол-ву событий");
+        Allure.step("На странице отображаются карточки предстоящих мероприятий. Количество карточек равно счетчику на кнопке Upcoming Events");
     }
 
     @Test
     @DisplayName("Просмотр карточек мероприятий")
     void viewEventCards() {
-        // Step 1 - Пользователь переходит на вкладку events
-        // Step 2 - Пользователь нажимает на Upcoming Events
-        // Step 3 - На странице отображаются карточки предстоящих мероприятий.
         EventPage eventPage = openEventTab("Upcoming events");
-        // Step 4 - В карточке указана информация о мероприятии: • язык • название мероприятия • дата мероприятия • информация о регистрации • список спикеров
-        EventCardElement rndEventCardElement = eventPage.getEventCardElement(RND.nextInt(eventPage.getEventCardsCount()) + 1);
+        EventCard rndEventCard = eventPage.getEventCard(RND.nextInt(eventPage.getEventCardsCount()) + 1);
         assertAll(
-                () -> assertTrue(rndEventCardElement.isVisibleLanguage(), "не отображен язык события"),
-                () -> assertTrue(rndEventCardElement.isVisibleEventName(), "не отображено имя события"),
-                () -> assertTrue(rndEventCardElement.isVisibleDate(), "не отображена дата проведения события"),
-                // Note: На момент написания теста, поле информации о регистрации отсутствовало в карточках события
-                () -> assertTrue(rndEventCardElement.isVisibleSpeaker(), "не отображена информация о спикере")
+                () -> assertTrue(rndEventCard.isVisibleLanguage(), "не отображен язык события"),
+                () -> assertTrue(rndEventCard.isVisibleEventName(), "не отображено имя события"),
+                () -> assertTrue(rndEventCard.isVisibleDate(), "не отображена дата проведения события"),
+                () -> assertTrue(rndEventCard.isVisibleSpeaker(), "не отображена информация о спикере")
         );
+        Allure.description("Note: На момент написания теста, поле информации о регистрации отсутствовало в карточках события");
+        Allure.step("В карточке указана информация о мероприятии: • язык • название мероприятия • дата мероприятия • список спикеров");
     }
 
     @Test
     @DisplayName("Валидация дат предстоящих мероприятий")
     void checkUpcomingEventDate() {
-        // Step 1 - Пользователь переходит на вкладку events
-        // Step 2 - Пользователь нажимает на Upcoming Events
-        // Step 3 - На странице отображаются карточки предстоящих мероприятий.
         EventPage eventPage = openEventTab("Upcoming events");
-        // Step 3 - Даты проведения мероприятий больше или равны текущей дате (или текущая дата находится в диапазоне дат проведения)
-        EventCardElement eventCardElement = eventPage.getEventCardElement(1);
-        String eventDate = eventCardElement.getDate();
+        EventCard eventCard = eventPage.getEventCard(1);
+        String eventDate = eventCard.getDate();
         LocalDate start = EventDateParser.getFirstDateAtString(eventDate);
         LocalDate end = EventDateParser.getLastDateAtString(eventDate);
         LocalDate now = LocalDate.now();
         assertTrue(
                 (start.isAfter(now) || start.isEqual(now)) && (end.isAfter(now) || start.isEqual(now)),
                 "диапазон дат проведения мероприятий находиться в прошлом");
+        Allure.step("Даты проведения мероприятий больше или равны текущей дате (или текущая дата находится в диапазоне дат проведения)");
     }
 
     @Test
     @DisplayName("Просмотр прошедших мероприятий в Канаде")
     void checkPastEventAfterLocationFilter() {
-        // Step 1 - Пользователь переходит на вкладку events
-        // Step 2 - Пользователь нажимает на Past Events
         EventPage eventPage = openEventTab("Past Events");
-        // Step 3 - Пользователь нажимает на Location в блоке фильтров и выбирает Canada в выпадающем списке
         eventPage.goToFilter().locationFilter(SHOW).selectLocation("Canada");
+        Allure.step("Пользователь нажимает на Location в блоке фильтров и выбирает Canada в выпадающем списке");
         eventPage.waitCardLoader();
-        // Step 4 - На странице отображаются карточки прошедших мероприятий. Количество карточек равно счетчику на кнопке Past Events. Даты проведенных мероприятий меньше текущей даты.
         assertAll(
                 () -> assertTrue(eventPage.existEvents(), "на странице отсутствуют события"),
                 () -> assertEquals(eventPage.getEventCardsCount(), eventPage.getTabCounter(),
                         "количество карточек не равно счетчику вкладки"),
                 () -> assertTrue(
-                        EventDateParser.getLastDateAtString(eventPage.getEventCardElement(eventPage.getTabCounter()).getDate())
+                        EventDateParser.getLastDateAtString(eventPage.getEventCard(eventPage.getTabCounter()).getDate())
                                 .isBefore(LocalDate.now()),
                         "финальная дата события больше текущей даты")
         );
+        Allure.step("На странице отображаются карточки прошедших мероприятий. Количество карточек равно счетчику на кнопке Past Events. Даты проведенных мероприятий меньше текущей даты.");
     }
 
     @Test
     @DisplayName("Фильтрация докладов по категориям")
     void filterReportsByCategory() {
-        // Step 1 - Пользователь переходит на вкладку (Video) Talks Library
         VideoPage videoPage = openVideoPage();
-        // Step 2 - Пользователь нажимает на More Filters
         FilterPanel filterPanel = videoPage.goToFilter().moreFilters(SHOW);
-        // Step 3 - Пользователь выбирает: Category – Testing, Location – Belarus, Language – English, На вкладке фильтров
+        Allure.step("Пользователь нажимает на More Filters");
         filterPanel.categoryFilter(SHOW).selectCategory("Testing");
         filterPanel.locationFilter(SHOW).selectLocation("Belarus");
         filterPanel.languageFilter(SHOW).selectLanguage("English");
-        // Step 4 - На странице отображаются карточки соответствующие правилам выбранных фильтров
+        Allure.step("Пользователь выбирает: Category – Testing, Location – Belarus, Language – English, На вкладке фильтров");
         assertTrue(videoPage.existTalkCards());
+        // TODO: Изменить assert добавив проверку по отображаемым значениям
+        Allure.step("На странице отображаются карточки соответствующие правилам выбранных фильтров", Status.SKIPPED);
     }
 
     @Test
     @DisplayName("Поиск докладов по ключевому слову 'QA'")
     void searchTalkByWord() {
-        // Step 1 - Пользователь переходит на вкладку (Video) Talks Library
         VideoPage videoPage = openVideoPage();
         // Step 2 - Пользователь вводит ключевое слово QA в поле поиска
-        videoPage.goToFilter().search("QA");
+        String word = "QA";
+        videoPage.goToFilter().search(word);
+        Allure.step(String.format("Пользователь вводит ключевое слово '%s' в поле поиска", word));
         videoPage.waitGlobalLoader();
-        // Step 3 - На странице отображаются доклады, содержащие в названии ключевое слово поиска
         assertTrue(videoPage.existTalkCards());
+        Allure.step("На странице отображаются доклады, содержащие в названии ключевое слово поиска", Status.SKIPPED);
+        // TODO: Изменить assert добавив проверку по отображаемым значениям
 
     }
 
@@ -139,6 +134,7 @@ class EventApplicationTests {
         EventPage eventPage = new EventPage(getDriver()).open();
         LOGGER.info(GO_TO_PAGE, eventPage.getTitle());
         assertNotNull(eventPage);
+        Allure.step("Пользователь открывает страницу 'Events'");
         return eventPage;
     }
 
@@ -146,14 +142,18 @@ class EventApplicationTests {
         VideoPage videoPage = new VideoPage(getDriver()).open();
         LOGGER.info(GO_TO_PAGE, videoPage.getTitle());
         assertNotNull(videoPage);
+        Allure.step("Пользователь открывает страницу 'Video / Talks Library'");
         return videoPage;
     }
 
+    @Step("Пользователь переходит на вкладку {tabName}")
     private EventPage openEventTab(String tabName) {
         EventPage eventPage = openEventPage();
         LOGGER.info("Переход на вкладку: {}", tabName);
         eventPage.clickTabByName(tabName);
+        Allure.step(String.format("Пользователь нажимает на вкладку '%s'", tabName));
         assertTrue(eventPage.existEvents());
+        Allure.step("На странице отображаются карточки предстоящих мероприятий.");
         return eventPage;
     }
 }
