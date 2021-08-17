@@ -174,9 +174,11 @@ class EventApplicationTests {
         FilterPanel filterPanel = page.goToFilter().moreFilters(SHOW);
         Allure.step("Пользователь нажимает на More Filters");
         filterPanel.categoryFilter(SHOW).selectCategory(category);
+        Allure.step(String.format("Пользователь выбирает: Category – %s", category));
         filterPanel.locationFilter(SHOW).selectLocation(location);
+        Allure.step(String.format("Пользователь выбирает: Location – %s", location));
         filterPanel.languageFilter(SHOW).selectLanguage(language).languageFilter(HIDE);
-        Allure.step("Пользователь выбирает: Category – Testing, Location – Belarus, Language – English, На вкладке фильтров");
+        Allure.step(String.format("Пользователь выбирает: Language – %s", language));
         waitResultsUpdate(page, count);
         assertTrue(page.existTalkCards());
         return page;
