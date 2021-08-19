@@ -18,7 +18,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.Random;
 
 import static net.otus.edu.utils.Constants.GO_TO_PAGE;
 import static net.otus.edu.web.page.epam.events.FilterPanel.Action.HIDE;
@@ -29,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Epic("Тестирование платформы 'events.epam.com'")
 class EventApplicationTests {
     private static final Logger LOGGER = LogManager.getLogger(EventApplicationTests.class);
-    private static final Random RND = new Random();
 
     @BeforeEach
     public void setUp() {
@@ -49,7 +47,8 @@ class EventApplicationTests {
         LOGGER.info("Текущие кол-во карточек с событиями: {}", eventCardsCount);
         Integer currentCounterValue = eventPage.getTabCounter();
         LOGGER.info("Текущий показатель счетчика вкладки 'Upcoming events': {}", currentCounterValue);
-        Allure.step("На странице отображаются карточки предстоящих мероприятий. Количество карточек равно счетчику на кнопке Upcoming Events");
+        Allure.step("На странице отображаются карточки предстоящих мероприятий. " +
+                "Количество карточек равно счетчику на кнопке Upcoming Events");
         assertEquals(eventCardsCount, currentCounterValue,
                 "Текущее значение счетчика не соответствует реальному кол-ву событий");
     }
@@ -58,8 +57,9 @@ class EventApplicationTests {
     @DisplayName("Просмотр карточек мероприятий")
     void viewEventCards() {
         EventPage eventPage = openEventTab("Upcoming events");
-        EventCard rndEventCard = eventPage.getEventCard(RND.nextInt(eventPage.getEventCardsCount()) + 1);
-        Allure.step("В карточке указана информация о мероприятии: • язык • название мероприятия • дата мероприятия • список спикеров");
+        EventCard rndEventCard = eventPage.getEventCard(1);
+        Allure.step("В карточке указана информация о мероприятии: • язык • название мероприятия " +
+                "• дата мероприятия • список спикеров");
         assertAll(
                 () -> assertTrue(rndEventCard.isVisibleLanguage(), "не отображен язык события"),
                 () -> assertTrue(rndEventCard.isVisibleEventName(), "не отображено имя события"),
@@ -78,7 +78,8 @@ class EventApplicationTests {
         LocalDate start = EventDateParser.getFirstDateAtString(eventDate);
         LocalDate end = EventDateParser.getLastDateAtString(eventDate);
         LocalDate now = LocalDate.now();
-        Allure.step("Даты проведения мероприятий больше или равны текущей дате (или текущая дата находится в диапазоне дат проведения)");
+        Allure.step("Даты проведения мероприятий больше или равны текущей дате " +
+                "(или текущая дата находится в диапазоне дат проведения)");
         assertTrue(
                 (start.isAfter(now) || start.isEqual(now)) && (end.isAfter(now) || start.isEqual(now)),
                 "диапазон дат проведения мероприятий находиться в прошлом");
@@ -91,7 +92,9 @@ class EventApplicationTests {
         Allure.step("Пользователь нажимает на Location в блоке фильтров и выбирает Canada в выпадающем списке");
         eventPage.goToFilter().locationFilter(SHOW).selectLocation("Canada");
         eventPage.waitCardLoader();
-        Allure.step("На странице отображаются карточки прошедших мероприятий. Количество карточек равно счетчику на кнопке Past Events. Даты проведенных мероприятий меньше текущей даты.");
+        Allure.step("На странице отображаются карточки прошедших мероприятий. " +
+                "Количество карточек равно счетчику на кнопке Past Events. " +
+                "Даты проведенных мероприятий меньше текущей даты.");
         assertAll(
                 () -> assertTrue(eventPage.existEvents(), "на странице отсутствуют события"),
                 () -> assertEquals(eventPage.getEventCardsCount(), eventPage.getTabCounter(),
@@ -111,12 +114,15 @@ class EventApplicationTests {
         String location = "Belarus";
         String language = "English";
         TalksLibraryPage results = searchTalksByParams(page, category, location, language);
-        TalkPage rndTalkPage = results.getTalkCard(RND.nextInt(results.getTalkCardsCount() + 1)).open();
+        TalkPage rndTalkPage = results.getTalkCard(1).open();
         Allure.step("На странице отображаются карточки соответствующие правилам выбранных фильтров");
         assertAll(
-                () -> assertTrue(rndTalkPage.getCategories().contains(category), String.format("в списке категорий отсутствует '%s'", category)),
-                () -> assertTrue(rndTalkPage.getLocation().contains(location), "место проведения события не соответствует выбранному фильтру"),
-                () -> assertTrue(rndTalkPage.getLanguage().equalsIgnoreCase(language), "язык события не соответствует выбранному фильтру")
+                () -> assertTrue(rndTalkPage.getCategories().contains(category),
+                        String.format("в списке категорий отсутствует '%s'", category)),
+                () -> assertTrue(rndTalkPage.getLocation().contains(location),
+                        "место проведения события не соответствует выбранному фильтру"),
+                () -> assertTrue(rndTalkPage.getLanguage().equalsIgnoreCase(language),
+                        "язык события не соответствует выбранному фильтру")
         );
     }
 
@@ -126,7 +132,7 @@ class EventApplicationTests {
         TalksLibraryPage page = openTalksLibraryPage();
         String word = "QA";
         TalksLibraryPage results = searchTalksByName(page, word);
-        TalkCard rndTalkCard = results.getTalkCard(RND.nextInt(results.getTalkCardsCount() + 1));
+        TalkCard rndTalkCard = results.getTalkCard(1);
         Allure.step(String.format("На странице отображаются доклады, содержащие в названии ключевое слово поиска '%s'", word));
         assertTrue(rndTalkCard.getName().contains(word));
 
