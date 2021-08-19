@@ -164,8 +164,6 @@ class EventApplicationTests {
         Integer count = page.getTalkCardsCounter();
         page.goToFilter().search(string);
         waitResultsUpdate(page, count);
-        Allure.step(String.format("На странице отображаются доклады, содержащие слова поиска : '%s'", string));
-        assertTrue(page.existTalkCards());
         return page;
     }
 
